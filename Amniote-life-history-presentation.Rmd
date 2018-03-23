@@ -90,7 +90,7 @@ Amniote %>%
 Amniote %>% 
   filter(class!="Mammalia"& class!="Reptilia") %>% 
   ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
-  geom_point()+
+  geom_density2d()+
   stat_smooth() +
   ylab("Log Adult Body Mass (g)") +
   xlab("Longevity (years)")
@@ -102,7 +102,7 @@ Amniote %>%
 Amniote %>% 
   filter(class!="Aves"& class!="Reptilia") %>% 
   ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
-  geom_point()+
+  geom_density2d()+
   stat_smooth() +
   ylab("Log Adult Body Mass (g)") +
   xlab("Longevity (years)")
@@ -114,8 +114,10 @@ Amniote %>%
 Amniote %>% 
   filter(class!="Aves"& class!="Mammalia") %>% 
   ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
-  geom_point()+
+  geom_density2d()+
   stat_smooth() +
   ylab("Log Adult Body Mass (g)") +
   xlab("Longevity (years)")
 ```
+
+
