@@ -1,5 +1,5 @@
 ---
-title: "Amniote life-history presentation"
+title: "Amniote life-history"
 author: "Sam Wolf"
 date: "March 22, 2018"
 output: 
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r libraries, include=FALSE}
-# Includes libraries
+# Includes two important libraries that help answer our question
 library(knitr)
 library(tidyverse)
 
@@ -31,24 +31,87 @@ Describe your question here
 Using the Amniote life-history [database](http://www.esapubs.org/archive/ecol/E096/269/#data), I ...
 
 ```{r message=FALSE, warning=FALSE}
-download.file("http://www.esapubs.org/archive/ecol/E096/269/Data_Files/Amniote_Range_Count_Aug_2015.csv
-", "./Data/Amniote_Range_Count_Aug_2015.csv")
+download.file("http://www.esapubs.org/archive/ecol/E096/269/Data_Files/Amniote_Database_Aug_2015.csv
+", "./Data/Amniote_Database_Aug_2015.csv")
 
 ```
 ```{r}
-# Read data
-Amniote<-read.csv("./Data/Amniote_Range_Count_Aug_2015.csv")
+# The code to read the data we just downloaded. 
+Amniote<-read.csv("./Data/Amniote_Database_Aug_2015.csv")
 
-# Explore data
-# View(Amniote)
+# Use this code to view the .csv file (helpful to view vectors).
+View(Amniote)
 ```
 
-## Including Plots
+```{r}
+# Since we have a lot of null values in the original data, represented as -999, we can make these into NA's to make the data more readable. 
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+# This code replaces -999 for NAs.
+Amniote[Amniote==-999]<-NA
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Data exploration
+
+### Number of genus per class of Amniotes 
+```{r}
+# Number species per class
+Amniote %>% 
+  group_by(class) %>% 
+  summarise(N_genus=n_distinct(genus)) %>% 
+  kable
+```
+
+### Number of orders per class of Amniotes
+```{r}
+# Number orders per class
+Amniote %>% 
+  group_by(class) %>% 
+  summarise(N_order=n_distinct(order)) %>% 
+  kable
+```
+
+
+### Number of species per order in Aves
+```{r}
+Amniote %>% 
+  filter(class=="Aves") %>% 
+  group_by(order) %>% 
+  summarise(N_species=n_distinct(species)) %>% 
+  kable
+
+```
+
+
+## Data visualization
+### Body size (in log base e) distribution of body size among groups of birds
+```{r message=FALSE, warning=FALSE}
+# Distribution of values of a specific variable among different groups
+# Prepare a special xlab with the number of species for each group
+n_sp_order<-
+  Amniote %>% 
+  filter(classx=="Aves") %>% 
+  group_by(orderx) %>% 
+  summarise(N_species=n_distinct(species))
+
+my_xlab <- paste(unique(n_sp_order$orderx),"\n(N=",n_sp_order$N_species,")",sep="")
+
+# To draw a ggplot with the tailored data
+Amniote %>% 
+  filter(classx=="Aves") %>% 
+  ggplot(aes(x=orderx, y=log(max_adult_body_mass), fill=orderx)) +
+  geom_boxplot(varwidth = TRUE, alpha=0.2) +
+  theme(legend.position="none") +
+  scale_x_discrete(labels=my_xlab) +
+  ylab("Max adult body size [g] (log_e)") +
+  xlab("Aves order")
+```
+
+
+```{r}
+# Relationship between body size and maximum longevity
+ggplot(Amniote, aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
+  geom_point()+
+  stat_smooth()
+```
+
