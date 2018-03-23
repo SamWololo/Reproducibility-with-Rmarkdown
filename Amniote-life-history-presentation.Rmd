@@ -1,6 +1,6 @@
 ---
-title: "Amniote life-history"
-author: "Sam Wolf"
+title: "Amniote Longevity and Reproduction"
+author: "Samuel Wolf"
 date: "March 22, 2018"
 output: 
   html_document:
@@ -22,13 +22,13 @@ library(tidyverse)
 ```
 
 # Exploring the relationship of body size on lifestyle and productivity among Amniotes
-##  How does body-size affect range distributions of amniotes?
+##  How does body-size affect the longevity of amniotes? Furthermore, how does female size and maturation correlate with egg size?
 
-Describe your question here
+In this analysis I attempt to document and describe the relationship between the body sizes of select amniotes and their influence on the longevity of those animals. I continue this question in light of reproductive trends, and attempt to observe a pattern between female size and egg size in reptilian and avian classes. I also go one step further and try to answer whether there is a relationship between female maturity and egg size in reptiles and avian classes. 
 
 ## Brief description of the methods
 
-Using the Amniote life-history [database](http://www.esapubs.org/archive/ecol/E096/269/#data), I ...
+Using the Amniote life-history [database](http://www.esapubs.org/archive/ecol/E096/269/#data), I attempted to answer questions regarding amniote life-history. I analyzed the data using RStudio, and formatted my scripts with Rmarkdown.  
 
 ```{r message=FALSE, warning=FALSE}
 download.file("http://www.esapubs.org/archive/ecol/E096/269/Data_Files/Amniote_Database_Aug_2015.csv
@@ -53,103 +53,89 @@ Amniote[Amniote==-999]<-NA
 
 ## Data exploration
 
-### Number of genus per class of Amniotes 
+### Class data: 
 ```{r}
-# Number species per class
-Amniote %>% 
+classData <- Amniote %>% 
   group_by(class) %>% 
-  summarise(N_genus=n_distinct(genus)) %>% 
-  kable
-```
+  summarise(N_order=n_distinct(order),
+            N_families=n_distinct(family),
+            N_genus=n_distinct(genus),
+            N_species=n_distinct(species))
 
-### Number of orders per class of Amniotes
-```{r}
-# Number orders per class
-Amniote %>% 
-  group_by(class) %>% 
-  summarise(N_order=n_distinct(order)) %>% 
-  kable
-```
-
-
-### Number of species per order in Aves
-```{r}
-Amniote %>% 
-  filter(class=="Aves") %>% 
-  group_by(order) %>% 
-  summarise(N_species=n_distinct(species)) %>% 
-  kable
-
+kable(classData)
 ```
 
 
 ## Data visualization
-### Correlation between body size (in log base e) distribution with respect to longevity
-```{r}
+### Correlation between body size (in log base e) distribution with respect to longevity:
+```{r message=FALSE, warning=FALSE}
 # Relationship between longevity and body size among birds
 Amniote %>% 
   filter(class!="Mammalia"& class!="Reptilia") %>% 
   ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
-  geom_density2d()+
+  geom_density2d()+ #Too many orders to separate by color
   stat_smooth() +
   ylab("Log Adult Body Mass (g)") +
   xlab("Longevity (years)")
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Relationship between longevity and body size among mammals
 Amniote %>% 
   filter(class!="Aves"& class!="Reptilia") %>% 
   ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
-  geom_density2d()+
+  geom_density2d()+ #Too many orders to separate by color
   stat_smooth() +
   ylab("Log Adult Body Mass (g)") +
   xlab("Longevity (years)")
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Relationship between longevity and body size among reptiles
 Amniote %>% 
   filter(class!="Aves"& class!="Mammalia") %>% 
   ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
-  geom_density2d()+
+  geom_density2d(aes(colour=order))+
   stat_smooth() +
   ylab("Log Adult Body Mass (g)") +
   xlab("Longevity (years)")
 ```
 
 
-```{r}
+### Correlation between female body size (in log base e) with respect to egg mass:
+```{r message=FALSE, warning=FALSE}
 # Relationship between female body size and egg mass among birds
 Amniote %>% 
   filter(class!="Mammalia", class!="Reptilia") %>% 
   ggplot(aes(x=log(egg_mass_g), y=log(female_body_mass_g))) + 
-  geom_density2d()+
+  geom_density2d()+ #Impossible to do colors here - too many orders
   stat_smooth() +
   ylab("Log Female Body Mass (g)") +
   xlab("Log Egg Mass (g)")
 ```
 
 
-```{r}
+```{r warning=FALSE}
 # Relationship between female body size and egg mass among reptiles
 Amniote %>% 
   filter(class!="Mammalia", class!="Aves") %>% 
   ggplot(aes(x=log(egg_mass_g), y=log(female_body_mass_g))) + 
-  geom_density2d()+
+  geom_density2d(aes(colour=order))+
   stat_smooth() +
   ylab("Log Female Body Mass (g)") +
   xlab("Log Egg Mass (g)")
 ```
 
-```{r}
-# Relationship between female body size and egg mass among birds and reptiles
+
+### Correlation between female maturation with respect to egg mass:
+```{r message=FALSE, warning=FALSE}
+# Relationship between female maturationin days and egg mass among birds and reptiles
 Amniote %>% 
   filter(class!="Mammalia") %>% 
   ggplot(aes(x=log(egg_mass_g), y=female_maturity_d)) + 
-  geom_density2d()+
+  geom_density2d(aes(colour=class))+
   stat_smooth() +
   ylab("Female Maturity (days)") +
   xlab("Log Egg Mass (g)")
