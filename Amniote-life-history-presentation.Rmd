@@ -121,3 +121,36 @@ Amniote %>%
 ```
 
 
+```{r}
+# Relationship between female body size and egg mass among birds
+Amniote %>% 
+  filter(class!="Mammalia", class!="Reptilia") %>% 
+  ggplot(aes(x=log(egg_mass_g), y=log(female_body_mass_g))) + 
+  geom_density2d()+
+  stat_smooth() +
+  ylab("Log Female Body Mass (g)") +
+  xlab("Log Egg Mass (g)")
+```
+
+
+```{r}
+# Relationship between female body size and egg mass among reptiles
+Amniote %>% 
+  filter(class!="Mammalia", class!="Aves") %>% 
+  ggplot(aes(x=log(egg_mass_g), y=log(female_body_mass_g))) + 
+  geom_density2d()+
+  stat_smooth() +
+  ylab("Log Female Body Mass (g)") +
+  xlab("Log Egg Mass (g)")
+```
+
+```{r}
+# Relationship between female body size and egg mass among birds and reptiles
+Amniote %>% 
+  filter(class!="Mammalia") %>% 
+  ggplot(aes(x=log(egg_mass_g), y=female_maturity_d)) + 
+  geom_density2d()+
+  stat_smooth() +
+  ylab("Female Maturity (days)") +
+  xlab("Log Egg Mass (g)")
+```
