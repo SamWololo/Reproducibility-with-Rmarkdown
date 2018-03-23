@@ -5,14 +5,12 @@ date: "March 23, 2018"
 output: html_document
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Spatial analysis 
-```{r include=FALSE}
+```{r libraries, message=FALSE, warning=FALSE}
 library(knitr)
 library(tidyverse)
 library(raster)
@@ -27,7 +25,7 @@ library(tidyr)
 Here I am going to use the species [Varanus komodoensis](https://en.wikipedia.org/wiki/Komodo_dragon) and [Basiliscus basiliscus](https://en.wikipedia.org/wiki/Common_basilisk). 
 
 
-## Occurrence data from gbif
+### Occurrence data from gbif
 ```{r message=FALSE, warning=FALSE}
 # Geographic occurrence data for both of our lizards
 Komodo <-gbif("Varanus","komodoensis")

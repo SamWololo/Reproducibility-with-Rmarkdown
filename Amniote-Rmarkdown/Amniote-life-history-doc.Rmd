@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r libraries, include=FALSE}
-# Includes two important libraries that help answer our question
 library(knitr)
 library(tidyverse)
 
