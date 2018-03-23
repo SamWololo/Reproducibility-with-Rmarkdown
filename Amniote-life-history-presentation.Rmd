@@ -84,34 +84,38 @@ Amniote %>%
 
 
 ## Data visualization
-### Body size (in log base e) distribution of body size among groups of birds
-```{r message=FALSE, warning=FALSE}
-# Distribution of values of a specific variable among different groups
-# Prepare a special xlab with the number of species for each group
-n_sp_order<-
-  Amniote %>% 
-  filter(classx=="Aves") %>% 
-  group_by(orderx) %>% 
-  summarise(N_species=n_distinct(species))
-
-my_xlab <- paste(unique(n_sp_order$orderx),"\n(N=",n_sp_order$N_species,")",sep="")
-
-# To draw a ggplot with the tailored data
+### Correlation between body size (in log base e) distribution with respect to longevity
+```{r}
+# Relationship between longevity and body size among birds
 Amniote %>% 
-  filter(classx=="Aves") %>% 
-  ggplot(aes(x=orderx, y=log(max_adult_body_mass), fill=orderx)) +
-  geom_boxplot(varwidth = TRUE, alpha=0.2) +
-  theme(legend.position="none") +
-  scale_x_discrete(labels=my_xlab) +
-  ylab("Max adult body size [g] (log_e)") +
-  xlab("Aves order")
+  filter(class!="Mammalia"& class!="Reptilia") %>% 
+  ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
+  geom_point()+
+  stat_smooth() +
+  ylab("Log Adult Body Mass (g)") +
+  xlab("Longevity (years)")
 ```
 
 
 ```{r}
-# Relationship between body size and maximum longevity
-ggplot(Amniote, aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
+# Relationship between longevity and body size among mammals
+Amniote %>% 
+  filter(class!="Aves"& class!="Reptilia") %>% 
+  ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
   geom_point()+
-  stat_smooth()
+  stat_smooth() +
+  ylab("Log Adult Body Mass (g)") +
+  xlab("Longevity (years)")
 ```
 
+
+```{r}
+# Relationship between longevity and body size among reptiles
+Amniote %>% 
+  filter(class!="Aves"& class!="Mammalia") %>% 
+  ggplot(aes(x=maximum_longevity_y, y=log(adult_body_mass_g))) + 
+  geom_point()+
+  stat_smooth() +
+  ylab("Log Adult Body Mass (g)") +
+  xlab("Longevity (years)")
+```
