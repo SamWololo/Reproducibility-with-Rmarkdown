@@ -13,10 +13,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Spatial analysis 
 ```{r include=FALSE}
+library(knitr)
+library(tidyverse)
 library(raster)
 library(sp)
 library(dismo)
 library(maptools)
+library(tidyr)
 ```
 
 
@@ -32,20 +35,23 @@ Basilisk <-gbif("Basiliscus","basiliscus")
 ```
 
 ### Cleaning occurrence
-
 ```{r}
 # Delete occurrence without geographic information
-cuteSleepy<-
-  cuteSleepy %>% 
+Komodo<-
+  Komodo %>% 
+  filter(!is.na(lon)&!is.na(lat))
+Basilisk<-
+  Basilisk %>% 
   filter(!is.na(lon)&!is.na(lat))
 
 ## Get rid of duplicate occurrences
-dups=duplicated(cuteSleepy[, c("lon", "lat")])
-cuteSleepy <-cuteSleepy[!dups, ]
+dups=duplicated(Komodo[, c("lon", "lat")])
+Komodo <-Komodo[!dups, ]
+dups=duplicated(Basilisk[, c("lon", "lat")])
+Basilisk <-Basilisk[!dups, ]
 ```
 
 ## Extract climatic variables
-
 ```{r}
 # using the raster package
 bio_ly <- getData("worldclim",var="bio",res=10, path="./data/")
@@ -55,40 +61,60 @@ precipRast <- bio_ly$bio12
 
 
 ##Convert Ocurrence data to spatial points 
-cuteSleepy_geo<-cuteSleepy
-coordinates(cuteSleepy_geo)<-~lon + lat
+Komodo_geo<-Komodo
+coordinates(Komodo_geo)<-~lon + lat
+Basilisk_geo<-Basilisk
+coordinates(Basilisk_geo)<-~lon + lat
 
 ## Changing projection (tempRast and precipiRast have the same projection)
-proj4string(cuteSleepy_geo)<-proj4string(tempRast)
+proj4string(Komodo_geo)<-proj4string(tempRast)
+proj4string(Basilisk_geo)<-proj4string(tempRast)
 
 
 ## Extracting Temperature and precipitation
-
-## using the expression 'raster::extract' make sure that the function that I am calling is from the raster package. Extract as a function is also found in the tidyr package.
-
-cuteSleepy$temp<-raster::extract(tempRast,cuteSleepy_geo)
-cuteSleepy$precip<-raster::extract(precipRast,cuteSleepy_geo)
+## using the expression 'raster::extract' I make sure that the function that I am calling is from the raster package. Extract as a function is also found in the tidyr package.
+Komodo$temp<-raster::extract(tempRast,Komodo_geo)
+Komodo$precip<-raster::extract(precipRast,Komodo_geo)
+Basilisk$temp<-raster::extract(tempRast,Basilisk_geo)
+Basilisk$precip<-raster::extract(precipRast,Basilisk_geo)
 ```
 
 
 ## Plot species occurrences
 
 ```{r}
-## Plotting climatic variable and coordinates
-new_map<-crop(tempRast,extent(cuteSleepy_geo))
+## Plotting Komodo climatic variable and coordinates
+new_map<-crop(tempRast,extent(Komodo_geo))
 
 plot(new_map)
-points(cuteSleepy_geo,pch=20,col=alpha("blue",0.5))
+points(Komodo_geo,pch=20,col=alpha("blue",0.5))
+```
+```{r}
+## Plotting Basilisk climatic variable and coordinates
+new_map<-crop(tempRast,extent(Basilisk_geo))
+
+plot(new_map)
+points(Basilisk_geo,pch=20,col=alpha("blue",0.5))
 ```
 
 
 ## Species climatic distribution
 
-```{r}
-hist(cuteSleepy$temp)
+```{r message=FALSE, warning=FALSE}
+# Komodo climatic distribution
+hist(Komodo$temp)
 
-cuteSleepy %>% 
+Komodo %>% 
   ggplot(aes(precip)) +
   geom_density(color="darkblue", fill="lightblue")
+```
 
+
+```{r message=FALSE, warning=FALSE}
+# Basilisk climatic distribution
+hist(Basilisk$temp)
+
+Basilisk %>% 
+  ggplot(aes(precip)) +
+  geom_density(color="darkblue", fill="lightblue")
 ```
